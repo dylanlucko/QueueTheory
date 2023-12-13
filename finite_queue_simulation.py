@@ -582,8 +582,8 @@ def calculate_average_number_waiting_in_queue(lam, mu, s, m):
 
 
 def calculate_average_waiting_time(lam, mu, s, m):
-    rho = lam / mu
-    return (rho ** (s + 1)) / (mu * (s * (1 - rho))) if rho < 1 else float('inf')
+    Ii = calculate_average_number_waiting_in_queue(lam, mu, s, m)
+    return Ii / R
 
 
 # Inputs

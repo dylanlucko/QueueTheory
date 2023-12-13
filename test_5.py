@@ -63,4 +63,21 @@ class QueueSystem:
 
 
 # Simulation parameters
-SIM
+
+# Simulation parameters
+SIM_TIME = 100  # Simulation time
+INTER_ARRIVAL_TIME = 5  # Mean inter-arrival time
+SERVICE_TIME = (2, 4)  # Range for service time
+
+# Create an environment and start the simulation
+env = simpy.Environment()
+queue_system = QueueSystem(env, INTER_ARRIVAL_TIME, SERVICE_TIME)
+queue_system.run_simulation(SIM_TIME)
+
+# Plot the simulation
+queue_system.plot_simulation()
+
+# Calculate average waiting time
+avg_waiting_time = queue_system.waiting_time / queue_system.total_customers if queue_system.total_customers else 0
+print(f"Average waiting time: {avg_waiting_time}")
+# %%

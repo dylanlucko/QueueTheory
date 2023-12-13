@@ -73,3 +73,5 @@ queue_system.run_simulation(SIM_TIME)
 
 # Plot the simulation
 queue_system.plot_simulation()
+
+# %%

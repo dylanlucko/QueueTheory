@@ -48,3 +48,5 @@ queue_system.run_simulation(SIM_TIME)
 # Calculate average waiting time
 avg_waiting_time = queue_system.waiting_time / queue_system.total_customers if queue_system.total_customers else 0
 print(f"Average waiting time: {avg_waiting_time}")
+
+# %%

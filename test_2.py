@@ -24,7 +24,7 @@ queue = 0
 # Time Series Columns
 ts_columns = ['event', 'time', 'type', 'queue', 'arr cust', 'served cust', 'depar cust']
 time_series = pd.DataFrame(columns=ts_columns)
-
+#%%
 # Simulation Loop
 # ... (Previous code remains the same)
 
@@ -84,23 +84,20 @@ while event < n_events and event < len(time_series):
             time_series.at[event, 'queue'] = queue
             event += 1
 
-    # Update event and check conditions
-    event += 1
-    if event < len(time_series):
-        next_arrival_time = time_series.at[event, 'time']
-        departure_time = time_series.at[event, 'time']
-    else:
-        next_arrival_time = None
-        departure_time = None
+        # Update event and check conditions
+event += 1
+if event < len(time_series):
+    next_arrival_time = time_series.at[event, 'time'] if time_series.at[event, 'type'] == 'arrival' else None
+    departure_time = time_series.at[event, 'time'] if time_series.at[event, 'type'] == 'departure' else None
+else:
+    next_arrival_time = None
+    departure_time = None
 
-    if next_arrival_time and next_arrival_time < departure_time:
-        server_status = "busy"
-    else:
-        server_status = "idle"
+if next_arrival_time and next_arrival_time < departure_time:
+    server_status = "busy"
+else:
+    server_status = "idle"
 
-# ... (Rest of your code continues)
-
-        server_status = "idle"
 
 # Data Analysis
 # (Your data analysis code goes here, followed by run_experiments function if needed)
