@@ -91,3 +91,105 @@ print(f"Average Time in System: {T:.4f}")
 
 
 # %%
+def calculate_p_n(n, s, m, PFull, mu, lam):
+    if n == s + M:
+        return PFull
+    else:
+        return calculate_p_n(n + 1, s, M, PFull, mu, lam) * min(n + 1, s) * mu / lam
+
+# Given values
+s = 1  # Number of servers
+M = 4  # Maximum queue size
+PFull = Pb  # Example value for PFull
+mu = 6  # Service rate of each server
+lam = 4  # Arrival rate of customers
+
+# Calculate P(n) for n = 0 through n = 5
+probabilities_n = [calculate_p_n(n, s, M, PFull, mu, lam) for n in range(6)]
+for n, p_n in enumerate(probabilities_n):
+    print(f"P(n={n}): {p_n:.4f}")
+
+# %%
+##################33
+####### Works #####
+def calculate_p_n(n, s, M, PFull, mu, lam):
+    if n == s + M:
+        return PFull
+    else:
+        return calculate_p_n(n + 1, s, M, PFull, mu, lam) * min(n + 1, s) * mu / lam
+
+# Given values
+s = 1  # Number of servers
+M = 4  # Maximum queue size
+PFull = Pb  # Example value for PFull
+mu = 6  # Service rate of each server
+lam = 4  # Arrival rate of customers
+
+# Calculate P(n) for n = 0 through n = 5 and cumulative probabilities
+probabilities_n = [calculate_p_n(n, s, M, PFull, mu, lam) for n in range(6)]
+cumulative_probabilities = [sum(probabilities_n[:i + 1]) for i in range(6)]
+
+# Output probabilities and cumulative probabilities for n = 0 through n = 5
+for n, (p_n, cumulative_p) in enumerate(zip(probabilities_n, cumulative_probabilities)):
+    print(f"P(n={n}): {p_n:.4f} | Cumulative: {cumulative_p:.4f}")
+
+# %%
+def calculate_p_q(n, probabilities_n, cumulative_probabilities, s):
+    if n >= s:
+        if n == s:
+            return cumulative_probabilities[n]
+        else:
+            return probabilities_n[n]
+    else:
+        return " "
+
+# Use previously computed probabilities for P(n)
+probabilities_n = [calculate_p_n(n, s, M, PFull, mu, lam) for n in range(6)]
+cumulative_probabilities = [sum(probabilities_n[:i + 1]) for i in range(6)]
+
+# Calculate P(q) for n = 0 through n = 5 (where q is the number of customers waiting in line)
+probabilities_q = [calculate_p_q(n, probabilities_n, cumulative_probabilities, s) for n in range(6)]
+
+# Output probabilities for P(q) for n = 0 through n = 5
+for n, p_q in enumerate(probabilities_q):
+    print(f"P(q={n}): {p_q}")
+
+# %%
+
+def calculate_p_q(n, probabilities_n, cumulative_probabilities, s):
+    if n >= s:
+        if n == s:
+            return round(cumulative_probabilities[n], 4)
+        else:
+            return round(probabilities_n[n], 4)
+    else:
+        return 0.0  # Returning 0 instead of " "
+
+# Use previously computed probabilities for P(n)
+probabilities_n = [calculate_p_n(n, s, M, PFull, mu, lam) for n in range(6)]
+cumulative_probabilities = [sum(probabilities_n[:i + 1]) for i in range(6)]
+
+# Calculate P(q) for n = 0 through n = 5 (where q is the number of customers waiting in line)
+probabilities_q = [calculate_p_q(n, probabilities_n, cumulative_probabilities, s) for n in range(6)]
+
+# Output probabilities for P(q) for n = 0 through n = 5
+for n, p_q in enumerate(probabilities_q):
+    print(f"P(q={n}): {p_q:.4f}")
+
+# %%
+
+import matplotlib.pyplot as plt
+
+# Your code for calculating probabilities_n goes here...
+
+# Plotting P(n) for n = 0 through n = 5
+n_values = list(range(6))
+
+plt.bar(n_values, probabilities_n)
+plt.xlabel('n')
+plt.ylabel('P(n)')
+plt.title('Probabilities for n')
+plt.xticks(n_values)  # Ensure all integer values are displayed on x-axis
+plt.show()
+
+# %%
