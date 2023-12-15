@@ -11,6 +11,8 @@ import simpy
 import random
 import matplotlib
 
+x=3
+
 # Get user input for the number of servers
 Number_of_Servers = int(input("Enter the number of servers: "))
 
@@ -76,6 +78,14 @@ class QueueMetrics:
             fq += term * max(0, k - self.s)
         
         return fq / po
+    
+    
+    def calculate_p_n(self, n):
+        if n < self.s:
+            return ((self.lam / self.mu) ** n) / math.factorial(n)
+        else:
+            return ((self.lam / (self.s * self.mu)) ** n) / (math.factorial(self.s) * (self.s ** (n - self.s)))
+
 
     def calculate_average_waiting_time(self):
         Ii = self.calculate_average_number_waiting_in_queue()
@@ -98,6 +108,31 @@ class QueueMetrics:
         I = self.average_number_in_system()
         R = self.calculate_average_rate_joining_system()
         return I / R if R != 0 else float('inf')
+    
+    def calculate_probability_more_than_x_waiting(self, x):
+        rho = self.lam / (self.s * self.mu)
+        if rho >= 1:
+            return 0.0
+        
+        p0 = 0
+        for n in range(self.s):
+            p0 += ((self.s * rho) ** n) / math.factorial(n)
+        p0 += ((self.s * rho) ** self.s) / (math.factorial(self.s) * (1 - rho))
+
+        if x <= self.s:
+            px = 1 - p0
+            for n in range(x + 1):
+                px -= ((self.s * rho) ** n) / math.factorial(n)
+        else:
+            px = 0
+
+        return px
+    
+    
+
+
+
+
 
 
 lam = Arrival_Rate  # Arrival rate of customers
@@ -119,6 +154,10 @@ UoS = queue_metrics.average_utilization_of_servers()
 I = queue_metrics.average_number_in_system()
 T = queue_metrics.average_time_in_system()
 
+
+
+
+
 # Results
 print(f"{'Number of Servers':<20}= {Number_of_Servers}")
 print(f"{'Queue Capacity':<20}= {Queue_Capacity}")
@@ -136,6 +175,8 @@ print(f"{'Average Number of Customers Being Served':<45}{'(Ip)':<20}{Ip:.4f}")
 print(f"{'Average Utilization of Servers':<45}{'':<20}{UoS * 100:.4f}%")
 print(f"{'Average Number in the System':<45}{'(I)':<20}{I:.4f}")
 print(f"{'Average Time in System':<45}{'(T)':<20}{T:.4f}")
+
+
 
 print ( " ------------------------------")
 ##################33
@@ -162,7 +203,7 @@ for n, (p_n, cumulative_p) in enumerate(zip(probabilities_n, cumulative_probabil
     print(f"P(n={n}): {p_n:.4f} | Cumulative: {cumulative_p:.4f}")
 #####################
 ####################
-def calculate_p_q(n, probabilities_n, cumulative_probabilities, s):
+def calculatee_p_q(n, probabilities_n, cumulative_probabilities, s):
     if n >= s:
         if n == s:
             return round(cumulative_probabilities[n], 4)
@@ -176,12 +217,31 @@ probabilities_n = [calculate_p_n(n, s, M, PFull, mu, lam) for n in range(6)]
 cumulative_probabilities = [sum(probabilities_n[:i + 1]) for i in range(6)]
 
 # Calculate P(q) for n = 0 through n = 5 (where q is the number of customers waiting in line)
-probabilities_q = [calculate_p_q(n, probabilities_n, cumulative_probabilities, s) for n in range(6)]
+probabilities_q = [calculatee_p_q(n, probabilities_n, cumulative_probabilities, s) for n in range(6)]
 
 # Output probabilities for P(q) for n = 0 through n = 5
 print ("-----------------")
 for n, p_q in enumerate(probabilities_q):
     print(f"P(q={n}): {p_q:.4f}")
+
+probabilities_n_T = {n: calculate_p_n(n, s, M, PFull, mu, lam) for n in range(6)}
+cumulative_probabilities_n_T = {n: sum(probabilities_n[i] for i in range(n + 1)) for n in range(6)}
+
+def calculate_complement_cumulative_probability(x, cumulative_probabilities):
+    n = max(0, x)
+    x=x
+    complement_probability = 1 - cumulative_probabilities[n+s]
+    return complement_probability
+
+result = calculate_complement_cumulative_probability(x, cumulative_probabilities)
+print ("-----------------")
+print ("-----------------")
+
+print(f"The complement cumulative probability for x={x} is: {result*100:.4f}%")
+print ("-----------------")
+print ("-----------------")
+
+
 
 
 import matplotlib.pyplot as plt
@@ -194,7 +254,7 @@ n_values = list(range(6))
 plt.bar(n_values, probabilities_n)
 plt.xlabel('n')
 plt.ylabel('P(n)')
-plt.title('Probabilities for n')
+plt.title('Probabilities for n (Finite)')
 plt.xticks(n_values)  # Ensure all integer values are displayed on x-axis
 plt.show()
 
