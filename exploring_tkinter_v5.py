@@ -134,9 +134,28 @@ class GUI:
         self.text_area.grid(row=len(labels) + 1, columnspan=2, padx=5, pady=5)
 
         # Graph Area for Plot
-        self.figure = plt.figure(figsize=(8, 6))
+        self.figure, self.axes = plt.subplots(2, 2, figsize=(8, 6))  # Create a 2x2 subplot grid
         self.canvas = FigureCanvasTkAgg(self.figure, master=self.frame)
-        self.canvas.get_tk_widget().grid(row=0, column=2, rowspan=len(labels) + 2, padx=20, pady=20)
+        self.canvas.get_tk_widget().grid(row=0, column=2, rowspan=len(labels) + 2, padx=20, pady=(20, 40))
+
+        # Configure row weights to distribute space more evenly
+        self.frame.grid_rowconfigure(len(labels) + 1, weight=1)
+        self.frame.grid_rowconfigure(len(labels) + 2, weight=1)
+
+        # Add padding between rows
+        for i in range(len(labels) + 1):
+            self.frame.grid_rowconfigure(i, pad=5)
+
+        # Initialize empty plots
+        for i in range(2):
+            for j in range(2):
+                self.axes[i, j].set_title(f'Plot {2 * i + j + 1}')
+                self.axes[i, j].set_xlabel('Time')
+                self.axes[i, j].set_ylabel('Wait Time')
+                self.axes[i, j].grid(True)
+
+        # Show the GUI
+        root.mainloop()
 
 
 
@@ -154,16 +173,15 @@ class GUI:
         time_values = [i for i in range(1, 101)]  # Example time values from 1 to 100
         wait_times = [queue_metrics.average_time_waiting_infinite() for _ in time_values]  # Calculating wait times for each time value
 
-        # Clear previous plot
-        self.figure.clear()
-
-        # Plot time vs. wait time
-        ax = self.figure.add_subplot(111)
-        ax.plot(time_values, wait_times, marker='o', linestyle='-', color='b')
-        ax.set_title('Time vs. Wait Time')
-        ax.set_xlabel('Time')
-        ax.set_ylabel('Wait Time')
-        ax.grid(True)
+        # Update the data in plots
+        for i in range(2):
+            for j in range(2):
+                self.axes[i, j].clear()  # Clear previous plot data
+                self.axes[i, j].plot(time_values, wait_times, marker='o', linestyle='-', color='b')
+                self.axes[i, j].set_title(f'Plot {2 * i + j + 1}')
+                self.axes[i, j].set_xlabel('Time')
+                self.axes[i, j].set_ylabel('Wait Time')
+                self.axes[i, j].grid(True)
 
         # Draw the updated plot
         self.canvas.draw()
@@ -204,12 +222,6 @@ class GUI:
             spacing = ' ' * (max_desc_length - len(desc) + gap_length)
             output = f"{desc:<{max_desc_length}}{spacing}{val:.4f}%\n"
             self.text_area.insert(tk.END, output)
-
-
-
-        
-        
-
 
 
 
