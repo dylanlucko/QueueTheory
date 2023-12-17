@@ -112,7 +112,7 @@ class GUI:
         self.root.title("Queue Metrics Calculator")
 
         self.frame = tk.Frame(self.root)
-        self.frame.pack(padx=20, pady=20)
+        self.frame.pack(padx=20, pady=10)
 
         # Labels and Entries
         labels = ["Queue Capacity:", "Service Rate:", "Number of Servers:", "Arrival Rate:", "x_t:", "x_q:"]
@@ -124,33 +124,44 @@ class GUI:
             entry = tk.Entry(self.frame, font=("Arial", 12))
             entry.grid(row=i, column=1, padx=5, pady=5)
             self.entries[label_text] = entry
+            
+        
 
         # Calculate Button
         self.calculate_button = tk.Button(self.frame, text="Calculate", command=self.calculate_metrics, font=("Arial", 14, "bold"))
         self.calculate_button.grid(row=len(labels), columnspan=2, padx=5, pady=20)
 
         # Text Area for Results
-        self.text_area = tk.Text(self.frame, width=60, height=20, font=("Arial", 12))
+        self.text_area = tk.Text(self.frame, width=60, height=20, font=("Arial", 12), bd=2, relief="groove")
         self.text_area.grid(row=len(labels) + 1, columnspan=2, padx=5, pady=5)
 
-        # Graph Area for Plot
-        self.figure, self.axes = plt.subplots(2, 2, figsize=(8, 6))  # Create a 2x2 subplot grid
+# Add a scrollbar
+        scrollbar = tk.Scrollbar(self.frame, command=self.text_area.yview)
+        scrollbar.grid(row=len(labels) + 1, column=3, sticky='nsew')
+        self.text_area['yscrollcommand'] = scrollbar.set
+
+
+        self.figure, self.axes = plt.subplots(2, 2, figsize=(8, 6))  # Updated figure size (width, height)
         self.canvas = FigureCanvasTkAgg(self.figure, master=self.frame)
-        self.canvas.get_tk_widget().grid(row=0, column=2, rowspan=len(labels) + 2, padx=20, pady=(20, 40))
+        self.canvas.get_tk_widget().grid(row=0, column=2, rowspan=len(labels) + 2, padx=20, pady=(50, 100))
 
         # Configure row weights to distribute space more evenly
-        self.frame.grid_rowconfigure(len(labels) + 1, weight=1)
-        self.frame.grid_rowconfigure(len(labels) + 2, weight=1)
+        self.frame.grid_rowconfigure(len(labels) + 1, weight=1)  # Add weight to the row with the text area
+        for i in range(4):  # Adding weight to the rows with the plots
+            self.frame.grid_rowconfigure(i, weight=8)
 
         # Add padding between rows
         for i in range(len(labels) + 1):
-            self.frame.grid_rowconfigure(i, pad=5)
+            self.frame.grid_rowconfigure(i, pad=10)
 
-        # Initialize empty plots
         for i in range(2):
             for j in range(2):
-                self.axes[i, j].set_title(f'Plot {2 * i + j + 1}')
-                self.axes[i, j].set_xlabel('Time')
+                plot_num = 2 * i + j + 1
+                if plot_num <= 2:
+                    self.axes[i, j].set_xlabel('')  # Empty string for x-axis label of plots 1 and 2
+                else:
+                    self.axes[i, j].set_xlabel('Time')
+                self.axes[i, j].set_title(f'Plot {plot_num}')
                 self.axes[i, j].set_ylabel('Wait Time')
                 self.axes[i, j].grid(True)
 
@@ -178,9 +189,14 @@ class GUI:
             for j in range(2):
                 self.axes[i, j].clear()  # Clear previous plot data
                 self.axes[i, j].plot(time_values, wait_times, marker='o', linestyle='-', color='b')
-                self.axes[i, j].set_title(f'Plot {2 * i + j + 1}')
-                self.axes[i, j].set_xlabel('Time')
+                plot_num = 2 * i + j + 1
+                if plot_num <= 2:
+                    self.axes[i, j].set_xlabel('')  # Empty string for x-axis label of plots 1 and 2
+                else:
+                    self.axes[i, j].set_xlabel('Time')
+                self.axes[i, j].set_title(f'Plot {plot_num}')
                 self.axes[i, j].set_ylabel('Wait Time')
+                self.axes[i, j].tick_params(axis='y', labelsize=8)  # Adjust label size
                 self.axes[i, j].grid(True)
 
         # Draw the updated plot
